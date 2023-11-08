@@ -1,0 +1,62 @@
+﻿<Window x:Class="Hooke_Jeeves.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:ScottPlot="clr-namespace:ScottPlot;assembly=ScottPlot.WPF"
+        xmlns:local="clr-namespace:Hooke_Jeeves"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="600" Width="1050">
+
+    <Grid>
+        <ScottPlot:WpfPlot x:Name="Plot" Margin="0,0,360,0"/>
+
+
+        <Grid HorizontalAlignment="Right" Width="360" Margin="0,10,0,0">
+
+            <Button Content="Сохранить" Margin="180,19,20,0" VerticalAlignment="Top" />
+            <Button Content="Открыть" Margin="10,19,190,0" VerticalAlignment="Top" />
+
+            <TextBox x:Name="function_textbox" Margin="10,63,20,0" TextWrapping="Wrap" Text="x2+y2+12x+2y" VerticalAlignment="Top"/>
+            <Label Content="Функция" HorizontalAlignment="Left" Margin="5,39,0,0" VerticalAlignment="Top"/>
+
+            <TextBox x:Name="TextBox_out" TextWrapping="Wrap" Margin="10,328,20,31" VerticalScrollBarVisibility="Auto"/>
+            <TextBox x:Name="coef_a_textbox" Margin="98,145,197,0" TextWrapping="Wrap" Text="2" VerticalAlignment="Top"/>
+            <TextBox x:Name="coef_b_textbox" Margin="275,145,20,0" TextWrapping="Wrap" Text="2" VerticalAlignment="Top"/>
+            <Label Content="Коэффициент a:" HorizontalAlignment="Left" Margin="5,141,0,0" VerticalAlignment="Top"/>
+            <Label Content="Коэффициент b:" HorizontalAlignment="Left" Margin="179,141,0,0" VerticalAlignment="Top"/>
+
+            <TextBox x:Name="coef_e_textbox" Margin="98,168,197,0" TextWrapping="Wrap" Text="0.1" VerticalAlignment="Top" MaxLength="9"/>
+            <Label Content="Точность e:" HorizontalAlignment="Left" Margin="5,164,0,0" VerticalAlignment="Top"/>
+            <TextBox x:Name="iter_max_textbox" Margin="275,168,20,0" TextWrapping="Wrap" Text="50" VerticalAlignment="Top" MaxLength="9"/>
+            <Label Content="Макс. кол. итер:" HorizontalAlignment="Left" Margin="180,164,0,0" VerticalAlignment="Top"/>
+            <TextBox x:Name="x0_textbox" Margin="98,122,197,0" TextWrapping="Wrap" Text="10" VerticalAlignment="Top" MaxLength="9"/>
+            <TextBox x:Name="y0_textbox" Margin="275,122,20,0" TextWrapping="Wrap" Text="20" VerticalAlignment="Top" MaxLength="9"/>
+            <Label Content="Начальный x:" HorizontalAlignment="Left" Margin="5,118,0,0" VerticalAlignment="Top"/>
+            <Label Content="Начальный y:" HorizontalAlignment="Left" Margin="180,118,0,0" VerticalAlignment="Top"/>
+            <TextBox x:Name="hx_textbox" Margin="98,191,197,0" TextWrapping="Wrap" Text="1" VerticalAlignment="Top" MaxLength="9"/>
+            <TextBox x:Name="hy_textbox" Margin="275,191,20,0" TextWrapping="Wrap" Text="1" VerticalAlignment="Top" MaxLength="9"/>
+            <Label Content="Шаг hx:" HorizontalAlignment="Left" Margin="5,187,0,0" VerticalAlignment="Top"/>
+            <Label Content="Шаг hy:" HorizontalAlignment="Left" Margin="180,187,0,0" VerticalAlignment="Top"/>
+
+            <Button Content="Запуск" Margin="10,228,190,0" VerticalAlignment="Top" Click="Button_Start_Click"/>
+            <Button Content="Очистить" Margin="180,228,20,0" VerticalAlignment="Top" Click="Button_Clear_Click"/>
+            <ProgressBar x:Name="progress" Height="10" Margin="10,255,20,0" VerticalAlignment="Top" Width="340"/>
+
+            <Label Content="Лучший x:" HorizontalAlignment="Left" Margin="5,270,0,0" VerticalAlignment="Top"/>
+            <Label Content="Лучший y:" HorizontalAlignment="Left" Margin="180,270,0,0" VerticalAlignment="Top"/>
+            <Label Content="Минимум:" HorizontalAlignment="Left" Margin="5,293,0,0" VerticalAlignment="Top"/>
+            <Label Content="Кол-во итер:" HorizontalAlignment="Left" Margin="180,293,0,0" VerticalAlignment="Top"/>
+            <TextBox x:Name="xmin_textbox" Margin="98,274,197,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" MaxLength="9"/>
+            <TextBox x:Name="ymin_textbox" Margin="275,274,20,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" MaxLength="9"/>
+            <TextBox x:Name="min_textbox" Margin="98,297,197,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Grid.RowSpan="1" MaxLength="9"/>
+            <TextBox x:Name="iter_textbox" Margin="275,297,20,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" MaxLength="9"/>
+            <Slider x:Name="map_size" HorizontalAlignment="Left" Margin="98,95,0,0" VerticalAlignment="Top" Width="242" Minimum="4" Maximum="200" Value="15"/>
+            <Label Content="Размер карты:" HorizontalAlignment="Left" Margin="5,91,0,0" VerticalAlignment="Top"/>
+
+        </Grid>
+
+
+
+    </Grid>
+</Window>
