@@ -8,6 +8,7 @@ using System.Data;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection.Emit;
+using System.Reflection.Metadata;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -197,6 +198,30 @@ public partial class MainWindow : Window
             marker.TextFont.Color = System.Drawing.Color.FromName("SandyBrown");
             marker.TextFont.Size = 16;
         }
+        parameters parameter = new parameters();
+
+        public void set_params_from_ui()
+        {
+            parameter.a = Coef_a(); 
+            parameter.b = Coef_b(); 
+            parameter.e = Coef_e();
+            parameter.h = Coef_h();
+            parameter.point0 = Zero_point();
+            parameter.function = function_textbox.Text;
+        }
+
+        public void set_ui_from_params()
+        {
+            x0_textbox.Text = parameter.x0_string();
+            y0_textbox.Text = parameter.y0_string();
+            hx_textbox.Text = parameter.hx_string();
+            hy_textbox.Text = parameter.hy_string();
+            coef_a_textbox.Text = parameter.a_string();
+            coef_b_textbox.Text = parameter.b_string();
+            coef_e_textbox.Text = parameter.e_string();
+            function_textbox.Text = parameter.function;
+        }
+
         public void hook()
         {
 
@@ -331,8 +356,8 @@ public partial class MainWindow : Window
             Plot.Refresh();
 
             min_textbox.Text = Math.Round(f(point3[0], point3[1]),(int)Math.Log10(1/epsilon)+1).ToString();
-            xmin_textbox.Text = point3[0].ToString();
-            ymin_textbox.Text = point3[0].ToString();
+            xmin_textbox.Text = Math.Round(point3[0], (int)Math.Log10(1 / epsilon) + 1).ToString();
+            ymin_textbox.Text = Math.Round(point3[0], (int)Math.Log10(1 / epsilon) + 1).ToString();
             iter_textbox.Text = iter.ToString();
             return;
         }
