@@ -1,11 +1,11 @@
 ﻿using AngouriMath.Extensions;
-using OxyPlot.Wpf;
 using ScottPlot;
 using ScottPlot.MarkerShapes;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Reflection.Emit;
 using System.Reflection.Metadata;
@@ -24,6 +24,9 @@ using System.Windows.Media.Media3D;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Threading;
+using YamlDotNet.Core;
+using YamlDotNet.Serialization.NamingConventions;
+using YamlDotNet.Serialization;
 using static AngouriMath.Entity;
 
 namespace Hooke_Jeeves
@@ -198,29 +201,7 @@ public partial class MainWindow : Window
             marker.TextFont.Color = System.Drawing.Color.FromName("SandyBrown");
             marker.TextFont.Size = 16;
         }
-        parameters parameter = new parameters();
 
-        public void set_params_from_ui()
-        {
-            parameter.a = Coef_a(); 
-            parameter.b = Coef_b(); 
-            parameter.e = Coef_e();
-            parameter.h = Coef_h();
-            parameter.point0 = Zero_point();
-            parameter.function = function_textbox.Text;
-        }
-
-        public void set_ui_from_params()
-        {
-            x0_textbox.Text = parameter.x0_string();
-            y0_textbox.Text = parameter.y0_string();
-            hx_textbox.Text = parameter.hx_string();
-            hy_textbox.Text = parameter.hy_string();
-            coef_a_textbox.Text = parameter.a_string();
-            coef_b_textbox.Text = parameter.b_string();
-            coef_e_textbox.Text = parameter.e_string();
-            function_textbox.Text = parameter.function;
-        }
 
         public void hook()
         {
@@ -370,6 +351,50 @@ public partial class MainWindow : Window
             Add_heat_map();
         }
 
+        parameters parameter = new parameters();
+
+        public void set_params_from_ui()
+        {
+            parameter.a = Coef_a();
+            parameter.b = Coef_b();
+            parameter.e = Coef_e();
+            parameter.h = Coef_h();
+            parameter.point0 = Zero_point();
+            parameter.function = function_textbox.Text;
+        }
+
+        public void set_ui_from_params()
+        {
+            x0_textbox.Text = parameter.x0_string();
+            y0_textbox.Text = parameter.y0_string();
+            hx_textbox.Text = parameter.hx_string();
+            hy_textbox.Text = parameter.hy_string();
+            coef_a_textbox.Text = parameter.a_string();
+            coef_b_textbox.Text = parameter.b_string();
+            coef_e_textbox.Text = parameter.e_string();
+            function_textbox.Text = parameter.function;
+        }
+
+        private void btn_open_Click(object sender, RoutedEventArgs e)
+        {
+            TextRange range;
+            FileStream fStream;
+            DateTime date = new DateTime();
+            string _fileName = date.ToString("HH_mm__dd_MM_yyyy") + "__Hooke_Jeeves_params";
+
+            set_ui_from_params();
+        }
+
+        private void btn_save_Click(object sender, RoutedEventArgs e)
+        {
+            set_params_from_ui();
+            var serializer = new SerializerBuilder().WithNamingConvention(CamelCaseNamingConvention.Instance).Build();
+            var yaml = serializer.Serialize(parameter);
+            DateTime date = new DateTime();
+            string _fileName = date.ToString("HH_mm__dd_MM_yyyy") + "__Hooke_Jeeves_params";
+            string path = @"C:\Users\uwm16\";
+            File.WriteAllText(path + _fileName+".txt", yaml);
+        }
 
     }
 }

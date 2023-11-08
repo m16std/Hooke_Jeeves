@@ -1,5 +1,4 @@
 ﻿using AngouriMath.Extensions;
-using OxyPlot.Wpf;
 using ScottPlot;
 using ScottPlot.MarkerShapes;
 using System;
