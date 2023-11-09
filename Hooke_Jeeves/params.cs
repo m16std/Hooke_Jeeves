@@ -29,10 +29,12 @@ namespace Hooke_Jeeves
 {
     public class parameters
     {
-        public double a, b, e;
+        public double a, b, e, map_size;
         public double[] h = new double[2];
         public double[] point0 = new double[2];
         public string function = "";
+        public int max_iter;
+
 
         public string a_string()
         {
@@ -62,6 +64,9 @@ namespace Hooke_Jeeves
         {
             return point0[1].ToString();
         }
-
+        public string max_iter_string()
+        {
+            return max_iter.ToString();
+        }
     }
 }
