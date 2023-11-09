@@ -1,11 +1,13 @@
 ﻿using AngouriMath.Extensions;
 using ScottPlot;
+using ScottPlot.Plottable;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Threading;
 
 namespace Hooke_Jeeves
 {
@@ -160,6 +162,16 @@ namespace Hooke_Jeeves
             function_textbox.Text = param.function;
             iter_max_textbox.Text = param.max_iter_string();
             map_size.Value = param.map_size;
+            try
+            {
+                Plot.Plot.Clear(typeof(Heatmap));
+                Plot.Plot.Clear(typeof(Colorbar));
+                Add_heat_map();
+            }
+            catch (Exception)
+            {
+
+            }
         }
         public void Set_result(double[] point, double epsilon, int iter) //Вывод результатов поиска в интерфейс
         {
@@ -184,7 +196,6 @@ namespace Hooke_Jeeves
             hm.OffsetY = -height;
             hm.UseParallel = true; //должно ускорить работу
             Plot.Plot.AddColorbar(hm);
-
             Plot.Plot.SetAxisLimits(-width * 1.05, width * 1.05, -height * 1.05, height * 1.05);
             Plot.Refresh();
         }

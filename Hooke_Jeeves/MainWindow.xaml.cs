@@ -33,27 +33,25 @@ using System.Runtime.Serialization.Json;
 using System.Data.Common;
 using static System.Net.WebRequestMethods;
 using System.Linq;
-
+using ScottPlot.Plottable;
+using ScottPlot.Drawing.Colormaps;
 
 namespace Hooke_Jeeves
 {
-    public static class ExtensionMethods
-    {
 
-        private static Action EmptyDelegate = delegate () { };
-
-
-        public static void RefreshUI(this UIElement uiElement)
-        {
-            uiElement.Dispatcher.Invoke(DispatcherPriority.Render, delegate () { });
-            //uiElement.Dispatcher.Invoke(delegate () { }, DispatcherPriority.Render);
-        }
-    }
     public partial class MainWindow : Window
     {
         public MainWindow()
         {
             InitializeComponent();
+            try
+            {
+                Add_heat_map();
+            }
+            catch (Exception)
+            {
+
+            }
         }
         
        
@@ -82,16 +80,15 @@ namespace Hooke_Jeeves
                 {
                     Step_back(ref point1, ref point2, ref point3, point3_old);
                 }
-                else                                                    //Найденная точка лучше предыдущей
+                else                       //Найденная точка лучше предыдущей
                 {
                     Pattern_search(ref point1, ref point2, ref point3, ref point3_old, ref h, a, b, iter);
                 }
 
                 progress.Value = Math.Log2(1 / h[1]) / Math.Log2(1 / epsilon) * 100;
                 Plot.Refresh();
-                Plot.RefreshUI();
-                progress.RefreshUI();
-                //Thread.Sleep(200);
+                DoEvents();
+                Thread.Sleep(300);
 
                 if (iter == maxiter)
                     break;
@@ -101,11 +98,15 @@ namespace Hooke_Jeeves
             Set_result(point3, epsilon, iter);
             return;
         }
+
+        public static void DoEvents()
+        {
+            Application.Current.Dispatcher.Invoke(
+            DispatcherPriority.Background, new Action(delegate { }));
+        }
         public void Exploratory_search(ref double[] point2, double[] point3, double[] h, int iter)
         {
             double f0, f_left, f_right, f_top, f_bottom;
-
-            //Dispatcher.BeginInvoke(new update_plot(Plot.RefreshUI), new object {});
 
             f0 = f(point3);
             f_left = f(point3[0] - h[0], point3[1]);
@@ -144,6 +145,8 @@ namespace Hooke_Jeeves
             }
             TextBox_out.Text += "\nТочка минимума в окрестности ( " + point2[0] + ", " + point2[1] + " )";
         }
+
+
         public void Pattern_search(ref double[] point1, ref double[] point2, ref double[] point3, ref double[] point3_old, ref double[] h, double a, double b, int iter)
         {
             double[] point3_new = new double[2];
@@ -207,11 +210,12 @@ namespace Hooke_Jeeves
         private void Button_Start_Click(object sender, RoutedEventArgs e)
         {
             progress.Value = 0;
-            Plot.Plot.Clear();
+            Plot.Plot.Clear(typeof(ArrowCoordinated));
+            Plot.Plot.Clear(typeof(ScatterPlot));
+            Plot.Plot.Clear(typeof(Marker));
             TextBox_out.Text = "";
             try
             {
-                Add_heat_map();
                 hook();
             }
             catch (Exception)
@@ -256,6 +260,20 @@ namespace Hooke_Jeeves
             saveFileDialog.Filter = "Text file (*.txt)|*.txt";
             if (saveFileDialog.ShowDialog() == true)
                 System.IO.File.WriteAllText(saveFileDialog.FileName, yaml);
+        }
+
+        private void LostFocusFunction(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                Plot.Plot.Clear(typeof(Heatmap));
+                Plot.Plot.Clear(typeof(Colorbar));
+                Add_heat_map();
+            }
+            catch (Exception)
+            {
+
+            }
         }
     }
 }
