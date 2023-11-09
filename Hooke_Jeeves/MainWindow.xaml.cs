@@ -32,6 +32,7 @@ using Microsoft.Win32;
 using System.Runtime.Serialization.Json;
 using System.Data.Common;
 using static System.Net.WebRequestMethods;
+using System.Linq;
 
 
 namespace Hooke_Jeeves
@@ -64,11 +65,11 @@ namespace Hooke_Jeeves
             double[] h = Coef_h();
             double[] point1 = Zero_point(), point2 = Zero_point(), point3 = Zero_point(), point3_old = Zero_point();
             int iter = 1, maxiter = Max_iter();
+            Add_label(point3, iter);
 
             while (h[1] > epsilon)
             {
                 Add_cross(point3, h);
-                Add_label(point3, iter);
 
                 Exploratory_search(ref point2, point3, h, iter);
 
@@ -77,13 +78,13 @@ namespace Hooke_Jeeves
                     Constriction(ref h, a);
                 }
                 else
-                if (f(point2[0], point2[1]) >= f(point1[0], point1[1])) //Найденная точка хуже старой
+                if (f(point2) > f(point1)) //Найденная точка хуже старой
                 {
                     Step_back(ref point1, ref point2, ref point3, point3_old);
                 }
                 else                                                    //Найденная точка лучше предыдущей
                 {
-                    Pattern_search(ref point1, ref point2, ref point3, ref point3_old, b);
+                    Pattern_search(ref point1, ref point2, ref point3, ref point3_old, ref h, a, b, iter);
                 }
 
                 progress.Value = Math.Log2(1 / h[1]) / Math.Log2(1 / epsilon) * 100;
@@ -141,22 +142,35 @@ namespace Hooke_Jeeves
                 point2[0] = point3[0] + h[0];
                 TextBox_out.Text += "вправо ";
             }
+            TextBox_out.Text += "\nТочка минимума в окрестности ( " + point2[0] + ", " + point2[1] + " )";
         }
-        public void Pattern_search(ref double[] point1, ref double[] point2, ref double[] point3, ref double[] point3_old, double b)
+        public void Pattern_search(ref double[] point1, ref double[] point2, ref double[] point3, ref double[] point3_old, ref double[] h, double a, double b, int iter)
         {
             double[] point3_new = new double[2];
             //Поиск по образцу
             point3_new[0] = (point2[0] - point1[0]) * b + point1[0];
             point3_new[1] = (point2[1] - point1[1]) * b + point1[1];
 
-            TextBox_out.Text += "\nТочка минимума в окрестности ( " + point2[0] + ", " + point2[1] + " )";
+            
             TextBox_out.Text += "\nПредыдущая точка ( " + point1[0] + ", " + point1[1] + " )";
             TextBox_out.Text += "\nНовая точка ( " + point3_new[0] + ", " + point3_new[1] + " )";
+
+            if (Enumerable.SequenceEqual(point3_new, point3_old) || Enumerable.SequenceEqual(point3_new, point3)) //Защита от вхождения в замкнутый цикл
+            {
+                TextBox_out.Text += "\nВхождение в замкнутый цикл - уменьшаем шаг";
+                double[] h_new = new double[2];
+                h_new = h;
+                Constriction(ref h_new, a);
+                h = h_new;
+                return;
+            }
 
             //Стелка из старой точки в новую
             Plot.Plot.AddArrow(point3_new[0], point3_new[1], point1[0], point1[1], lineWidth: 2, color: System.Drawing.Color.FromArgb(255, 0, 200, 200));
             //Стрелка - указатель направления минимума
             Plot.Plot.AddArrow(point2[0], point2[1], point3[0], point3[1], lineWidth: 2, color: System.Drawing.Color.FromName("SandyBrown"));
+            //Указываем номер итерации
+            Add_label(point3_new, iter);
 
             point3_old[0] = point3[0];
             point3_old[1] = point3[1];
