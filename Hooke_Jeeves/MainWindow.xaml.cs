@@ -88,10 +88,12 @@ namespace Hooke_Jeeves
                 progress.Value = Math.Log2(1 / h[1]) / Math.Log2(1 / epsilon) * 100;
                 Plot.Refresh();
                 DoEvents();
-                Thread.Sleep(300);
+                Thread.Sleep(2000 - (int)anim_speed.Value);
 
                 if (iter == maxiter)
                     break;
+
+                Set_result(point3, epsilon, iter);
 
                 iter++;
             }
@@ -99,11 +101,7 @@ namespace Hooke_Jeeves
             return;
         }
 
-        public static void DoEvents()
-        {
-            Application.Current.Dispatcher.Invoke(
-            DispatcherPriority.Background, new Action(delegate { }));
-        }
+
         public void Exploratory_search(ref double[] point2, double[] point3, double[] h, int iter)
         {
             double f0, f_left, f_right, f_top, f_bottom;
@@ -161,17 +159,18 @@ namespace Hooke_Jeeves
             if (Enumerable.SequenceEqual(point3_new, point3_old) || Enumerable.SequenceEqual(point3_new, point3)) //Защита от вхождения в замкнутый цикл
             {
                 TextBox_out.Text += "\nВхождение в замкнутый цикл - уменьшаем шаг";
-                double[] h_new = new double[2];
-                h_new = h;
-                Constriction(ref h_new, a);
-                h = h_new;
+                Constriction(ref h, a);
                 return;
             }
 
-            //Стелка из старой точки в новую
-            Plot.Plot.AddArrow(point3_new[0], point3_new[1], point1[0], point1[1], lineWidth: 2, color: System.Drawing.Color.FromArgb(255, 0, 200, 200));
             //Стрелка - указатель направления минимума
             Plot.Plot.AddArrow(point2[0], point2[1], point3[0], point3[1], lineWidth: 2, color: System.Drawing.Color.FromName("SandyBrown"));
+            Plot.Refresh();
+            DoEvents();
+            Thread.Sleep(2000 - (int)anim_speed.Value);
+
+            //Стелка из старой точки в новую
+            Plot.Plot.AddArrow(point3_new[0], point3_new[1], point1[0], point1[1], lineWidth: 2, color: System.Drawing.Color.FromArgb(255, 0, 200, 200));
             //Указываем номер итерации
             Add_label(point3_new, iter);
 
@@ -213,6 +212,7 @@ namespace Hooke_Jeeves
             Plot.Plot.Clear(typeof(ArrowCoordinated));
             Plot.Plot.Clear(typeof(ScatterPlot));
             Plot.Plot.Clear(typeof(Marker));
+            Plot.Plot.Clear(typeof(MarkerPlot));
             TextBox_out.Text = "";
             try
             {

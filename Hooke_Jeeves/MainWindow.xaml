@@ -10,15 +10,26 @@
 
     <Grid x:Name="main_grid">
 
+
         <ScottPlot:WpfPlot x:Name="Plot" Margin="0,0,360,0"/>
 
-        <Grid HorizontalAlignment="Right" Width="360" Margin="0,10,0,0">
+        <Grid HorizontalAlignment="Right" Width="360" Margin="0,00,0,0">
 
-            <Button x:Name="btn_save" Content="Сохранить" Margin="180,16,20,0" VerticalAlignment="Top" Click="Btn_save_Click" />
-            <Button x:Name="btn_open" Content="Открыть" Margin="10,16,190,0" VerticalAlignment="Top" Click="Btn_open_Click"  />
+            <Menu Width="Auto" Height="20" HorizontalAlignment="Left" VerticalAlignment="Top">
+                <MenuItem Header="Файл">
+                    <MenuItem x:Name="Save" Header="Сохранить" HorizontalAlignment="Left" Width="140" Click="Btn_save_Click"/>
+                    <MenuItem x:Name="Open" Header="Открыть" HorizontalAlignment="Left" Width="140" Click="Btn_open_Click"/>
+                </MenuItem>
+                <MenuItem Header="Инструменты">
 
-            <TextBox x:Name="function_textbox" Margin="10,60,20,0" TextWrapping="Wrap" Text="x2+y2+12x+2y" VerticalAlignment="Top" LostFocus="LostFocusFunction"/>
-            <Label Content="Функция" HorizontalAlignment="Left" Margin="5,36,0,0" VerticalAlignment="Top"/>
+                </MenuItem>
+                <MenuItem Header="О программе">
+
+                </MenuItem>
+            </Menu>
+
+            <TextBox x:Name="function_textbox" Margin="10,44,20,0" TextWrapping="Wrap" Text="x2+y2+12x+2y" VerticalAlignment="Top" LostFocus="LostFocusFunction"/>
+            <Label Content="Функция" HorizontalAlignment="Left" Margin="5,20,0,0" VerticalAlignment="Top"/>
 
             <TextBox x:Name="TextBox_out" TextWrapping="Wrap" Margin="10,328,20,31" VerticalScrollBarVisibility="Auto"/>
             <TextBox x:Name="coef_a_textbox" Margin="98,145,197,0" TextWrapping="Wrap" Text="2" VerticalAlignment="Top"/>
@@ -51,8 +62,10 @@
             <TextBox x:Name="ymin_textbox" Margin="275,274,20,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" MaxLength="9"/>
             <TextBox x:Name="min_textbox" Margin="98,297,197,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Grid.RowSpan="1" MaxLength="9"/>
             <TextBox x:Name="iter_textbox" Margin="275,297,20,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" MaxLength="9"/>
-            <Slider x:Name="map_size" HorizontalAlignment="Left" Margin="98,95,0,0" VerticalAlignment="Top" Width="242" Minimum="4" Maximum="200" Value="15" LostFocus="LostFocusFunction"/>
-            <Label Content="Размер карты:" HorizontalAlignment="Left" Margin="5,91,0,0" VerticalAlignment="Top"/>
+            <Slider x:Name="map_size" HorizontalAlignment="Left" Margin="98,73,0,0" VerticalAlignment="Top" Width="242" Minimum="0" Maximum="200" Value="15" LostFocus="LostFocusFunction"/>
+            <Label Content="Размер карты:" HorizontalAlignment="Left" Margin="5,69,0,0" VerticalAlignment="Top"/>
+            <Slider x:Name="anim_speed" HorizontalAlignment="Left" Margin="98,96,0,0" VerticalAlignment="Top" Width="242" Minimum="0" Maximum="2000" Value="1900"/>
+            <Label Content="Скор. анимации:" HorizontalAlignment="Left" Margin="5,92,0,0" VerticalAlignment="Top"/>
 
         </Grid>
 

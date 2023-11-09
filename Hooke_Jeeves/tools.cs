@@ -146,8 +146,9 @@ namespace Hooke_Jeeves
             param.h = Coef_h();
             param.point0 = Zero_point();
             param.function = function_textbox.Text;
-            param.max_iter = Max_iter();
-            param.map_size = map_size.Value;
+            param.maxiter = Max_iter();
+            param.mapsize = map_size.Value;
+            param.animspeed = anim_speed.Value;
         }
 
         public void Set_ui_from_params(parameters param)
@@ -161,7 +162,8 @@ namespace Hooke_Jeeves
             coef_e_textbox.Text = param.e_string();
             function_textbox.Text = param.function;
             iter_max_textbox.Text = param.max_iter_string();
-            map_size.Value = param.map_size;
+            map_size.Value = param.mapsize;
+            anim_speed.Value = param.animspeed;
             try
             {
                 Plot.Plot.Clear(typeof(Heatmap));
@@ -198,6 +200,10 @@ namespace Hooke_Jeeves
             Plot.Plot.AddColorbar(hm);
             Plot.Plot.SetAxisLimits(-width * 1.05, width * 1.05, -height * 1.05, height * 1.05);
             Plot.Refresh();
+        }
+        public static void DoEvents()
+        {
+            Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new Action(delegate { }));
         }
     }
 }
