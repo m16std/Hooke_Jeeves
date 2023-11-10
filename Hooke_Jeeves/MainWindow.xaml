@@ -6,7 +6,7 @@
         xmlns:ScottPlot="clr-namespace:ScottPlot;assembly=ScottPlot.WPF"
         xmlns:local="clr-namespace:Hooke_Jeeves"
         mc:Ignorable="d"
-        Title="MainWindow" Height="600" Width="1050">
+        Title="Метод Хука-Дживса оптимизации нулевого порядка" Height="600" Width="1050">
 
     <Grid x:Name="main_grid">
 
@@ -21,10 +21,13 @@
                     <MenuItem x:Name="Open" Header="Открыть" HorizontalAlignment="Left" Width="140" Click="Btn_open_Click"/>
                 </MenuItem>
                 <MenuItem Header="Инструменты">
-
+                    <MenuItem x:Name="Start" Header="Запуск алгоритма" HorizontalAlignment="Left" Width="200" Click="Button_Start_Click"/>
+                    <MenuItem x:Name="AddHM" Header="Добавить карту высот" HorizontalAlignment="Left" Width="200" Click="Button_Clear_Click"/>
+                    <MenuItem x:Name="ClearPlot" Header="Убрать график" HorizontalAlignment="Left" Width="200" Click="Button_Clear_Click"/>
+                    <MenuItem x:Name="Clear" Header="Очистить всё" HorizontalAlignment="Left" Width="200" Click="Btn_Clear_All_Click"/>
                 </MenuItem>
                 <MenuItem Header="О программе">
-
+                    <MenuItem x:Name="Aboutbtn" Header="О программе" HorizontalAlignment="Left" Width="140" Click="About"/>
                 </MenuItem>
             </Menu>
 

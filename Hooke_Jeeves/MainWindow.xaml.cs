@@ -47,6 +47,7 @@ namespace Hooke_Jeeves
             try
             {
                 Add_heat_map();
+                //Plot.Plot.SetAxisLimits(-map_size.Value * 1.05, map_size.Value * 1.05, -map_size.Value * 1.05, map_size.Value * 1.05);
             }
             catch (Exception)
             {
@@ -62,16 +63,18 @@ namespace Hooke_Jeeves
             double a = Coef_a(), b = Coef_b(), epsilon = Coef_e();
             double[] h = Coef_h();
             double[] point1 = Zero_point(), point2 = Zero_point(), point3 = Zero_point(), point3_old = Zero_point();
-            int iter = 1, maxiter = Max_iter();
+            int iter = 0, maxiter = Max_iter();
             Add_label(point3, iter);
 
             while (h[1] > epsilon)
             {
+                iter++;
+
                 Add_cross(point3, h);
 
                 Exploratory_search(ref point2, point3, h, iter);
 
-                if (point2 == point3)   //Поиск завершился неудачей
+                if (Enumerable.SequenceEqual(point2, point3))   //Поиск завершился неудачей
                 {
                     Constriction(ref h, a);
                 }
@@ -94,8 +97,6 @@ namespace Hooke_Jeeves
                     break;
 
                 Set_result(point3, epsilon, iter);
-
-                iter++;
             }
             Set_result(point3, epsilon, iter);
             return;
@@ -104,44 +105,40 @@ namespace Hooke_Jeeves
 
         public void Exploratory_search(ref double[] point2, double[] point3, double[] h, int iter)
         {
-            double f0, f_left, f_right, f_top, f_bottom;
-
-            f0 = f(point3);
-            f_left = f(point3[0] - h[0], point3[1]);
-            f_right = f(point3[0] + h[0], point3[1]);
-            f_top = f(point3[0], point3[1] + h[1]);
-            f_bottom = f(point3[0], point3[1] - h[1]);
+            double f0 = f(point3);
 
             TextBox_out.Text += "\n\n\nИтерация " + iter;
             TextBox_out.Text += "\nТекущая точка    ( " + point3[0] + ", " + point3[1] + " )";
             TextBox_out.Text += "\nДистанция поиска ( " + h[0] + ", " + h[1] + " )";
             TextBox_out.Text += "\nЗначение функции в точке: " + f0;
-            TextBox_out.Text += "\nЛев: " + f_left + "  Прав: " + f_right + "  Верх: " + f_top + "  Низ: " + f_bottom + " - Значение ";
-            TextBox_out.Text += "\nЛев: " + (f_left - f0).ToString() + "  Прав: " + (f_right - f0).ToString() + "  Верх: " + (f_top - f0).ToString() + "  Низ: " + (f_bottom - f0).ToString() + " - Изменение";
+            //TextBox_out.Text += "\nЛев: " + f_left + "  Прав: " + f_right + "  Верх: " + f_top + "  Низ: " + f_bottom + " - Значение ";
+            //TextBox_out.Text += "\nЛев: " + (f_left - f0).ToString() + "  Прав: " + (f_right - f0).ToString() + "  Верх: " + (f_top - f0).ToString() + "  Низ: " + (f_bottom - f0).ToString() + " - Изменение";
 
             TextBox_out.Text += "\nВыбранное направление: ";
 
-            if (f_top < f0)
-            {
-                point2[1] = point3[1] + h[1];
-                TextBox_out.Text += "вверх ";
-            }
-            if (f_bottom < f0)
-            {
-                point2[1] = point3[1] - h[1];
-                TextBox_out.Text += "вниз ";
-            }
-            if (f_left < f0)
-            {
-                point2[0] = point3[0] - h[0];
-                TextBox_out.Text += "влево ";
-            }
-            if (f_right < f0)
+            if (f(point3[0] + h[0], point3[1]) < f0)
             {
                 point2[0] = point3[0] + h[0];
                 TextBox_out.Text += "вправо ";
             }
+            if (f(point3[0] - h[0], point3[1]) < f0)
+            {
+                point2[0] = point3[0] - h[0];
+                TextBox_out.Text += "влево ";
+            }
+            if (f(point3[0], point3[1] + h[1]) < f0)
+            {
+                point2[1] = point3[1] + h[1];
+                TextBox_out.Text += "вверх ";
+            }
+            if (f(point3[0], point3[1] - h[1]) < f0)
+            {
+                point2[1] = point3[1] - h[1];
+                TextBox_out.Text += "вниз ";
+            }
+            
             TextBox_out.Text += "\nТочка минимума в окрестности ( " + point2[0] + ", " + point2[1] + " )";
+            TextBox_out.Text += "\nЗначение функции в точке: " + f(point2).ToString();
         }
 
 
@@ -153,15 +150,9 @@ namespace Hooke_Jeeves
             point3_new[1] = (point2[1] - point1[1]) * b + point1[1];
 
             
+            TextBox_out.Text += "\nФункция улучшилась, выполним поиск по образцу";
             TextBox_out.Text += "\nПредыдущая точка ( " + point1[0] + ", " + point1[1] + " )";
             TextBox_out.Text += "\nНовая точка ( " + point3_new[0] + ", " + point3_new[1] + " )";
-
-            if (Enumerable.SequenceEqual(point3_new, point3_old) || Enumerable.SequenceEqual(point3_new, point3)) //Защита от вхождения в замкнутый цикл
-            {
-                TextBox_out.Text += "\nВхождение в замкнутый цикл - уменьшаем шаг";
-                Constriction(ref h, a);
-                return;
-            }
 
             //Стрелка - указатель направления минимума
             Plot.Plot.AddArrow(point2[0], point2[1], point3[0], point3[1], lineWidth: 2, color: System.Drawing.Color.FromName("SandyBrown"));
@@ -185,7 +176,7 @@ namespace Hooke_Jeeves
         }
         public void Step_back(ref double[] point1, ref double[] point2, ref double[] point3, double[] point3_old)
         {
-            TextBox_out.Text += "\nНеверное направление - функция выросла";
+            TextBox_out.Text += "\nНеверное направление - функция выросла, возвращаемся";
             //стрелка из текущей точки в предыдущую
             Plot.Plot.AddArrow(point3_old[0], point3_old[1], point3[0], point3[1], lineWidth: 1, color: System.Drawing.Color.FromArgb(255, 255, 0, 0));
 
@@ -198,82 +189,9 @@ namespace Hooke_Jeeves
         }
         public void Constriction(ref double[] h, double a)
         {
-            TextBox_out.Text += "не найдено";
+            TextBox_out.Text += "не найдено, уменьшаем шаг";
             h[0] /= a;
             h[1] /= a;
-        }
-
-
-
-
-        private void Button_Start_Click(object sender, RoutedEventArgs e)
-        {
-            progress.Value = 0;
-            Plot.Plot.Clear(typeof(ArrowCoordinated));
-            Plot.Plot.Clear(typeof(ScatterPlot));
-            Plot.Plot.Clear(typeof(Marker));
-            Plot.Plot.Clear(typeof(MarkerPlot));
-            TextBox_out.Text = "";
-            try
-            {
-                hook();
-            }
-            catch (Exception)
-            {
-
-            }
-        }
-        private void Button_Clear_Click(object sender, RoutedEventArgs e)
-        {
-            progress.Value = 0;
-            TextBox_out.Text = "";
-            Plot.Plot.Clear();
-            try
-            {
-                Add_heat_map();
-            }
-            catch (Exception)
-            {
-
-            }
-        }
-        private void Btn_open_Click(object sender, RoutedEventArgs e)
-        {
-            var yalm = @"";
-            OpenFileDialog openFileDialog = new OpenFileDialog();
-            if (openFileDialog.ShowDialog() == true)
-                yalm = System.IO.File.ReadAllText(openFileDialog.FileName);
-
-            var deserializer = new DeserializerBuilder().WithNamingConvention(UnderscoredNamingConvention.Instance).Build();
-            var parameter = deserializer.Deserialize<parameters>(yalm);
-            Set_ui_from_params(parameter);
-        }
-        private void Btn_save_Click(object sender, RoutedEventArgs e)
-        {
-            parameters parameter = new parameters();
-            Set_params_from_ui(parameter);
-
-            var serializer = new SerializerBuilder().WithNamingConvention(CamelCaseNamingConvention.Instance).Build();
-            var yaml = serializer.Serialize(parameter);
-            SaveFileDialog saveFileDialog = new SaveFileDialog();
-            saveFileDialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-            saveFileDialog.Filter = "Text file (*.txt)|*.txt";
-            if (saveFileDialog.ShowDialog() == true)
-                System.IO.File.WriteAllText(saveFileDialog.FileName, yaml);
-        }
-
-        private void LostFocusFunction(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                Plot.Plot.Clear(typeof(Heatmap));
-                Plot.Plot.Clear(typeof(Colorbar));
-                Add_heat_map();
-            }
-            catch (Exception)
-            {
-
-            }
         }
     }
 }
