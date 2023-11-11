@@ -38,12 +38,15 @@ using ScottPlot.Drawing.Colormaps;
 
 namespace Hooke_Jeeves
 {
-
     public partial class MainWindow : Window
     {
         public MainWindow()
         {
             InitializeComponent();
+            Add_heat_map();
+            Plot.Plot.SetAxisLimits(-map_size.Value * 1.05, map_size.Value * 1.05, -map_size.Value * 1.05, map_size.Value * 1.05);
+            Plot.Refresh();
+            DoEvents();
         }
 
         private void Btn_Clear_All_Click(object sender, RoutedEventArgs e)
@@ -54,6 +57,7 @@ namespace Hooke_Jeeves
             TextBox_out.Text = "";
             Clear_result();
         }
+
         private void Button_Start_Click(object sender, RoutedEventArgs e)
         {
             progress.Value = 0;
@@ -112,6 +116,23 @@ namespace Hooke_Jeeves
             if (saveFileDialog.ShowDialog() == true)
                 System.IO.File.WriteAllText(saveFileDialog.FileName, yaml);
         }
+        public bool stop_alog = false;
+        private void Button_Stop_Click(object sender, RoutedEventArgs e)
+        {
+            stop_alog = true;
+        }
+        private void Btn_save_result_Click(object sender, RoutedEventArgs e)
+        {
+            parameters parameter = new parameters();
+            Set_params_from_ui(parameter);
+
+            var yaml = TextBox_out.Text;
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
+            saveFileDialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            saveFileDialog.Filter = "Text file (*.txt)|*.txt";
+            if (saveFileDialog.ShowDialog() == true)
+                System.IO.File.WriteAllText(saveFileDialog.FileName, yaml);
+        }
         private void LostFocusFunction(object sender, RoutedEventArgs e)
         {
             Plot.Plot.Clear(typeof(Heatmap));
@@ -125,6 +146,23 @@ namespace Hooke_Jeeves
 
             }
         }
+        private void ClearMarker(object sender, RoutedEventArgs e)
+        {
+            Plot.Plot.Clear(typeof(MarkerPlot));
+            Plot.Refresh();
+        }
+        private void ClearHeatMap(object sender, RoutedEventArgs e)
+        {
+            Plot.Plot.Clear(typeof(Heatmap));
+            Plot.Plot.Clear(typeof(Colorbar));
+            Plot.Refresh();
+        }
+        private void ClearScater(object sender, RoutedEventArgs e)
+        {
+            Plot.Plot.Clear(typeof(ScatterPlot));
+            Plot.Refresh();
+        }
+
         private void About(object sender, RoutedEventArgs e)
         {
             MessageBox.Show("Метод Хука — Дживса (англ. Hooke — Jeeves), также известный как метод конфигураций — как и алгоритм Нелдера — Мида, служит для поиска безусловного локального " +

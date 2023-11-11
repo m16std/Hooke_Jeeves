@@ -1,4 +1,5 @@
 ﻿using ScottPlot;
+using ScottPlot.MarkerShapes;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -14,55 +15,47 @@ namespace Hooke_Jeeves
     {
         public void hook()
         {
+            stop_alog = false;
             double a = Coef_a(), b = Coef_b(), epsilon = Coef_e();
             double[] h = Coef_h();
-            double[] point1 = Zero_point(), point2 = Zero_point(), point3 = Zero_point(), point3_old = Zero_point();
+            double[] point1 = Zero_point(), point2 = Zero_point();
             int iter = 0, maxiter = Max_iter();
-            Add_label(point3, iter);
 
             while (h[1] > epsilon)
             {
                 iter++;
+                Add_label(point2, iter);   //Указываем номер итерации
 
-                Add_cross(point3, h);
+                Exploratory_search(ref point2, h, iter, a);
 
-                Exploratory_search(ref point2, point3, h, iter);
-
-                if (Enumerable.SequenceEqual(point2, point3))   //Поиск завершился неудачей
-                {
-                    Constriction(ref h, a);
-                }
-                else
                 if (f(point2) > f(point1)) //Найденная точка хуже старой
                 {
-                    Step_back(ref point1, ref point2, ref point3, point3_old);
+                    Step_back(ref point1, ref point2, iter);
                 }
-                else                       //Найденная точка лучше предыдущей
+                if (f(point2) < f(point1)) //Найденная точка лучше предыдущей
                 {
-                    Pattern_search(ref point1, ref point2, ref point3, ref point3_old, ref h, a, b, iter);
+                    Pattern_search(ref point1, ref point2, ref h, a, b, iter);
                 }
 
                 progress.Value = Math.Log2(1 / h[1]) / Math.Log2(1 / epsilon) * 100;
                 Plot.Refresh();
                 DoEvents();
+                Set_result(point2, epsilon, iter);
                 Thread.Sleep(2000 - (int)anim_speed.Value);
 
-                if (iter == maxiter)
+                if (iter == maxiter || stop_alog)
                     break;
-
-                Set_result(point3, epsilon, iter);
             }
-            Set_result(point3, epsilon, iter);
             return;
         }
 
 
-        public void Exploratory_search(ref double[] point2, double[] point3, double[] h, int iter)
+        public void Exploratory_search(ref double[] point2, double[] h, int iter, double a)
         {
-            double f0 = f(point3);
+            double f0 = f(point2);
 
             TextBox_out.Text += "\n\n\nИтерация " + iter;
-            TextBox_out.Text += "\nТекущая точка    ( " + point3[0] + ", " + point3[1] + " )";
+            TextBox_out.Text += "\nТекущая точка    ( " + point2[0] + ", " + point2[1] + " )";
             TextBox_out.Text += "\nДистанция поиска ( " + h[0] + ", " + h[1] + " )";
             TextBox_out.Text += "\nЗначение функции в точке: " + f0;
             //TextBox_out.Text += "\nЛев: " + f_left + "  Прав: " + f_right + "  Верх: " + f_top + "  Низ: " + f_bottom + " - Значение ";
@@ -70,81 +63,122 @@ namespace Hooke_Jeeves
 
             TextBox_out.Text += "\nВыбранное направление: ";
 
-            if (f(point3[0] + h[0], point3[1]) < f0)
+            if (f(point2[0] + h[0], point2[1]) < f0)
             {
-                point2[0] = point3[0] + h[0];
+                Plot.Plot.AddArrow(point2[0] + h[0], point2[1], point2[0], point2[1], lineWidth: 2, color: System.Drawing.Color.FromName("GreenYellow"));
+                Plot.Refresh();
+                DoEvents();
+                Thread.Sleep((2000 - (int)anim_speed.Value)/2);
+
+                point2[0] = point2[0] + h[0];
                 TextBox_out.Text += "вправо ";
+
             }
-            if (f(point3[0] - h[0], point3[1]) < f0)
+            else if (f(point2[0] - h[0], point2[1]) < f0)
             {
-                point2[0] = point3[0] - h[0];
+                Plot.Plot.AddArrow(point2[0] - h[0], point2[1], point2[0], point2[1], lineWidth: 2, color: System.Drawing.Color.FromName("GreenYellow"));
+                Plot.Refresh();
+                DoEvents();
+                Thread.Sleep((2000 - (int)anim_speed.Value) / 2);
+
+                point2[0] = point2[0] - h[0];
                 TextBox_out.Text += "влево ";
             }
-            if (f(point3[0], point3[1] + h[1]) < f0)
+            else
             {
-                point2[1] = point3[1] + h[1];
-                TextBox_out.Text += "вверх ";
-            }
-            if (f(point3[0], point3[1] - h[1]) < f0)
-            {
-                point2[1] = point3[1] - h[1];
-                TextBox_out.Text += "вниз ";
+                List<double> crossX = new List<double>();
+                List<double> crossY = new List<double>();
+                crossX.Add(point2[0] - h[0]);
+                crossY.Add(point2[1]);
+                crossX.Add(point2[0] + h[0]);
+                crossY.Add(point2[1]);
+                Plot.Plot.AddScatter(crossX.ToArray(), crossY.ToArray(), lineStyle: LineStyle.Dot, lineWidth: 2, color: System.Drawing.Color.FromName("OrangeRed"));
+                Plot.Refresh();
+                DoEvents();
+
+                Constriction_X(ref h, a);
+                Thread.Sleep((2000 - (int)anim_speed.Value) / 2);
             }
 
-            TextBox_out.Text += "\nТочка минимума в окрестности ( " + point2[0] + ", " + point2[1] + " )";
-            TextBox_out.Text += "\nЗначение функции в точке: " + f(point2).ToString();
+
+
+            if (f(point2[0], point2[1] + h[1]) < f0)
+            {
+                Plot.Plot.AddArrow(point2[0], point2[1] + h[1], point2[0], point2[1], lineWidth: 2, color: System.Drawing.Color.FromName("GreenYellow"));
+                Plot.Refresh();
+                DoEvents();
+                Thread.Sleep((2000 - (int)anim_speed.Value) / 2);
+
+                point2[1] = point2[1] + h[1];
+                TextBox_out.Text += "вверх ";
+
+            }
+            else if (f(point2[0], point2[1] - h[1]) < f0)
+            {
+                Plot.Plot.AddArrow(point2[0], point2[1] - h[1], point2[0], point2[1], lineWidth: 2, color: System.Drawing.Color.FromName("GreenYellow"));
+                Plot.Refresh();
+                DoEvents();
+                Thread.Sleep((2000 - (int)anim_speed.Value) / 2);
+
+                point2[1] = point2[1] - h[1];
+                TextBox_out.Text += "вниз ";
+            }
+            else
+            {
+                List<double> crossX = new List<double>();
+                List<double> crossY = new List<double>();
+                crossX.Add(point2[0]);
+                crossY.Add(point2[1] - h[1]);
+                crossX.Add(point2[0]);
+                crossY.Add(point2[1] + h[1]);
+                Plot.Plot.AddScatter(crossX.ToArray(), crossY.ToArray(), lineStyle: LineStyle.Dot, lineWidth: 2, color: System.Drawing.Color.FromName("OrangeRed"));
+                Plot.Refresh();
+                DoEvents();
+
+                Constriction_Y(ref h, a);
+                Thread.Sleep((2000 - (int)anim_speed.Value) / 2);
+            }
         }
 
 
-        public void Pattern_search(ref double[] point1, ref double[] point2, ref double[] point3, ref double[] point3_old, ref double[] h, double a, double b, int iter)
+        public void Pattern_search(ref double[] point1, ref double[] point2, ref double[] h, double a, double b, int iter)
         {
-            double[] point3_new = new double[2];
             //Поиск по образцу
-            point3_new[0] = (point2[0] - point1[0]) * b + point1[0];
-            point3_new[1] = (point2[1] - point1[1]) * b + point1[1];
+            double[] point3 = new double[2];
+            point3[0] = (point2[0] - point1[0]) * b + point1[0];
+            point3[1] = (point2[1] - point1[1]) * b + point1[1];
 
-
+            TextBox_out.Text += "\nТочка минимума в окрестности ( " + point2[0] + ", " + point2[1] + " )";
+            TextBox_out.Text += "\nЗначение функции ней: " + f(point2).ToString();
             TextBox_out.Text += "\nФункция улучшилась, выполним поиск по образцу";
             TextBox_out.Text += "\nПредыдущая точка ( " + point1[0] + ", " + point1[1] + " )";
-            TextBox_out.Text += "\nНовая точка ( " + point3_new[0] + ", " + point3_new[1] + " )";
-
-            //Стрелка - указатель направления минимума
-            Plot.Plot.AddArrow(point2[0], point2[1], point3[0], point3[1], lineWidth: 2, color: System.Drawing.Color.FromName("SandyBrown"));
-            Plot.Refresh();
-            DoEvents();
-            Thread.Sleep(2000 - (int)anim_speed.Value);
-
+            TextBox_out.Text += "\nНовая точка ( " + point3[0] + ", " + point3[1] + " )";
+            
             //Стелка из старой точки в новую
-            Plot.Plot.AddArrow(point3_new[0], point3_new[1], point1[0], point1[1], lineWidth: 2, color: System.Drawing.Color.FromArgb(255, 0, 200, 200));
-            //Указываем номер итерации
-            Add_label(point3_new, iter);
+            Plot.Plot.AddArrow(point3[0], point3[1], point1[0], point1[1], lineWidth: 2, color: System.Drawing.Color.FromArgb(255, 0, 200, 200));
 
-            point3_old[0] = point3[0];
-            point3_old[1] = point3[1];
-            point3[0] = point3_new[0];
-            point3[1] = point3_new[1];
             point1[0] = point2[0];
             point1[1] = point2[1];
             point2[0] = point3[0];
             point2[1] = point3[1];
         }
-        public void Step_back(ref double[] point1, ref double[] point2, ref double[] point3, double[] point3_old)
+        public void Step_back(ref double[] point1, ref double[] point2, int iter)
         {
             TextBox_out.Text += "\nНеверное направление - функция выросла, возвращаемся";
             //стрелка из текущей точки в предыдущую
-            Plot.Plot.AddArrow(point3_old[0], point3_old[1], point3[0], point3[1], lineWidth: 1, color: System.Drawing.Color.FromArgb(255, 255, 0, 0));
+            Plot.Plot.AddArrow(point1[0], point1[1], point2[0], point2[1], lineWidth: 1, color: System.Drawing.Color.FromArgb(255, 255, 0, 0));
 
-            point3[0] = point3_old[0];
-            point3[1] = point3_old[1];
-            point1[0] = point3_old[0];
-            point1[1] = point3_old[1];
-            point2[0] = point3_old[0];
-            point2[1] = point3_old[1];
+            point2[0] = point1[0];
+            point2[1] = point1[1];
         }
-        public void Constriction(ref double[] h, double a)
+        public void Constriction_X(ref double[] h, double a)
         {
-            TextBox_out.Text += "не найдено, уменьшаем шаг";
+            TextBox_out.Text += "\nПо X не найдено, уменьшаем шаг";
             h[0] /= a;
+        }
+        public void Constriction_Y(ref double[] h, double a)
+        {
+            TextBox_out.Text += "\nПо Y не найдено, уменьшаем шаг";
             h[1] /= a;
         }
     }

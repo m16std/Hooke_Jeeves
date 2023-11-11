@@ -17,14 +17,18 @@
 
             <Menu Width="Auto" Height="20" HorizontalAlignment="Left" VerticalAlignment="Top">
                 <MenuItem Header="Файл">
-                    <MenuItem x:Name="Save" Header="Сохранить" HorizontalAlignment="Left" Width="140" Click="Btn_save_Click"/>
-                    <MenuItem x:Name="Open" Header="Открыть" HorizontalAlignment="Left" Width="140" Click="Btn_open_Click"/>
+                    <MenuItem x:Name="Save" Header="Сохранить настройки" HorizontalAlignment="Left" Width="200" Click="Btn_save_Click"/>
+                    <MenuItem x:Name="Save_res" Header="Сохранить результат" HorizontalAlignment="Left" Width="200" Click="Btn_save_result_Click"/>
+                    <MenuItem x:Name="Open" Header="Открыть настройки" HorizontalAlignment="Left" Width="200" Click="Btn_open_Click"/>
                 </MenuItem>
                 <MenuItem Header="Инструменты">
                     <MenuItem x:Name="Start" Header="Запуск алгоритма" HorizontalAlignment="Left" Width="200" Click="Button_Start_Click"/>
                     <MenuItem x:Name="AddHM" Header="Добавить карту высот" HorizontalAlignment="Left" Width="200" Click="Button_Clear_Click"/>
-                    <MenuItem x:Name="ClearPlot" Header="Убрать график" HorizontalAlignment="Left" Width="200" Click="Button_Clear_Click"/>
                     <MenuItem x:Name="Clear" Header="Очистить всё" HorizontalAlignment="Left" Width="200" Click="Btn_Clear_All_Click"/>
+                    <MenuItem x:Name="ClearPlot" Header="Убрать график" HorizontalAlignment="Left" Width="200" Click="Button_Clear_Click"/>
+                    <MenuItem x:Name="ClearMark" Header="Убрать подписи" HorizontalAlignment="Left" Width="200" Click="ClearMarker"/>
+                    <MenuItem x:Name="ClearScat" Header="Убрать красные линии" HorizontalAlignment="Left" Width="200" Click="ClearScater"/>
+                    <MenuItem x:Name="ClearHM" Header="Убрать карту высот" HorizontalAlignment="Left" Width="200" Click="ClearHeatMap"/>
                 </MenuItem>
                 <MenuItem Header="О программе">
                     <MenuItem x:Name="Aboutbtn" Header="О программе" HorizontalAlignment="Left" Width="140" Click="About"/>
@@ -53,9 +57,10 @@
             <Label Content="Шаг hx:" HorizontalAlignment="Left" Margin="5,187,0,0" VerticalAlignment="Top"/>
             <Label Content="Шаг hy:" HorizontalAlignment="Left" Margin="180,187,0,0" VerticalAlignment="Top"/>
 
-            <Button Content="Запуск" Margin="10,228,190,0" VerticalAlignment="Top" Click="Button_Start_Click"/>
-            <Button Content="Очистить" Margin="180,228,20,0" VerticalAlignment="Top" Click="Button_Clear_Click"/>
-            <ProgressBar x:Name="progress" Height="10" Margin="10,255,20,0" VerticalAlignment="Top" Width="340"/>
+            <Button Content="Запуск" Margin="10,228,0,0" VerticalAlignment="Top" Click="Button_Start_Click" HorizontalAlignment="Left" Width="100"/>
+            <Button Content="Стоп" Margin="125,228,0,0" VerticalAlignment="Top" Click="Button_Stop_Click" HorizontalAlignment="Left" Width="100"/>
+            <Button Content="Очистить" Margin="240,228,0,0" VerticalAlignment="Top" Click="Button_Clear_Click" HorizontalAlignment="Left" Width="100"/>
+            <ProgressBar x:Name="progress" Height="10" Margin="10,255,20,0" VerticalAlignment="Top"/>
 
             <Label Content="Лучший x:" HorizontalAlignment="Left" Margin="5,270,0,0" VerticalAlignment="Top"/>
             <Label Content="Лучший y:" HorizontalAlignment="Left" Margin="180,270,0,0" VerticalAlignment="Top"/>
@@ -69,6 +74,7 @@
             <Label Content="Размер карты:" HorizontalAlignment="Left" Margin="5,69,0,0" VerticalAlignment="Top"/>
             <Slider x:Name="anim_speed" HorizontalAlignment="Left" Margin="98,96,0,0" VerticalAlignment="Top" Width="242" Minimum="0" Maximum="2000" Value="1900"/>
             <Label Content="Скор. анимации:" HorizontalAlignment="Left" Margin="5,92,0,0" VerticalAlignment="Top"/>
+
 
         </Grid>
 

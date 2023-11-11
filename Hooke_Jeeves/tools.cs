@@ -112,6 +112,7 @@ namespace Hooke_Jeeves
                 return pointzero;
             }
         }
+        /*
         public void Add_cross(double[] point, double[] h)
         {
             List<double> crossX = new List<double>();
@@ -133,6 +134,7 @@ namespace Hooke_Jeeves
             crossX.Clear();
             crossY.Clear();
         }
+        */
         public void Add_label(double[] point, int iter)
         {
             var marker = Plot.Plot.AddMarker(point[0], point[1], color: System.Drawing.Color.FromName("Transparent"), size: 0);
