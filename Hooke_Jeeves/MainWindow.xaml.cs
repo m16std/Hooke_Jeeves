@@ -44,154 +44,97 @@ namespace Hooke_Jeeves
         public MainWindow()
         {
             InitializeComponent();
+        }
+
+        private void Btn_Clear_All_Click(object sender, RoutedEventArgs e)
+        {
+            progress.Value = 0;
+            Plot.Plot.Clear();
+            Plot.Refresh();
+            TextBox_out.Text = "";
+            Clear_result();
+        }
+        private void Button_Start_Click(object sender, RoutedEventArgs e)
+        {
+            progress.Value = 0;
+            Plot.Plot.Clear(typeof(ArrowCoordinated));
+            Plot.Plot.Clear(typeof(ScatterPlot));
+            Plot.Plot.Clear(typeof(Marker));
+            Plot.Plot.Clear(typeof(MarkerPlot));
+            Plot.Refresh();
+            TextBox_out.Text = "";
+            Clear_result();
             try
             {
-                Add_heat_map();
-                //Plot.Plot.SetAxisLimits(-map_size.Value * 1.05, map_size.Value * 1.05, -map_size.Value * 1.05, map_size.Value * 1.05);
+                hook();
             }
             catch (Exception)
             {
 
             }
         }
-        
-       
-
-
-        public void hook()
+        private void Button_Clear_Click(object sender, RoutedEventArgs e)
         {
-            double a = Coef_a(), b = Coef_b(), epsilon = Coef_e();
-            double[] h = Coef_h();
-            double[] point1 = Zero_point(), point2 = Zero_point(), point3 = Zero_point(), point3_old = Zero_point();
-            int iter = 0, maxiter = Max_iter();
-            Add_label(point3, iter);
-
-            while (h[1] > epsilon)
+            progress.Value = 0;
+            TextBox_out.Text = "";
+            Plot.Plot.Clear();
+            Clear_result();
+            try
             {
-                iter++;
-
-                Add_cross(point3, h);
-
-                Exploratory_search(ref point2, point3, h, iter);
-
-                if (Enumerable.SequenceEqual(point2, point3))   //Поиск завершился неудачей
-                {
-                    Constriction(ref h, a);
-                }
-                else
-                if (f(point2) > f(point1)) //Найденная точка хуже старой
-                {
-                    Step_back(ref point1, ref point2, ref point3, point3_old);
-                }
-                else                       //Найденная точка лучше предыдущей
-                {
-                    Pattern_search(ref point1, ref point2, ref point3, ref point3_old, ref h, a, b, iter);
-                }
-
-                progress.Value = Math.Log2(1 / h[1]) / Math.Log2(1 / epsilon) * 100;
-                Plot.Refresh();
-                DoEvents();
-                Thread.Sleep(2000 - (int)anim_speed.Value);
-
-                if (iter == maxiter)
-                    break;
-
-                Set_result(point3, epsilon, iter);
+                Add_heat_map();
             }
-            Set_result(point3, epsilon, iter);
-            return;
+            catch (Exception)
+            {
+
+            }
         }
-
-
-        public void Exploratory_search(ref double[] point2, double[] point3, double[] h, int iter)
+        private void Btn_open_Click(object sender, RoutedEventArgs e)
         {
-            double f0 = f(point3);
+            var yalm = @"";
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            if (openFileDialog.ShowDialog() == true)
+                yalm = System.IO.File.ReadAllText(openFileDialog.FileName);
 
-            TextBox_out.Text += "\n\n\nИтерация " + iter;
-            TextBox_out.Text += "\nТекущая точка    ( " + point3[0] + ", " + point3[1] + " )";
-            TextBox_out.Text += "\nДистанция поиска ( " + h[0] + ", " + h[1] + " )";
-            TextBox_out.Text += "\nЗначение функции в точке: " + f0;
-            //TextBox_out.Text += "\nЛев: " + f_left + "  Прав: " + f_right + "  Верх: " + f_top + "  Низ: " + f_bottom + " - Значение ";
-            //TextBox_out.Text += "\nЛев: " + (f_left - f0).ToString() + "  Прав: " + (f_right - f0).ToString() + "  Верх: " + (f_top - f0).ToString() + "  Низ: " + (f_bottom - f0).ToString() + " - Изменение";
-
-            TextBox_out.Text += "\nВыбранное направление: ";
-
-            if (f(point3[0] + h[0], point3[1]) < f0)
-            {
-                point2[0] = point3[0] + h[0];
-                TextBox_out.Text += "вправо ";
-            }
-            if (f(point3[0] - h[0], point3[1]) < f0)
-            {
-                point2[0] = point3[0] - h[0];
-                TextBox_out.Text += "влево ";
-            }
-            if (f(point3[0], point3[1] + h[1]) < f0)
-            {
-                point2[1] = point3[1] + h[1];
-                TextBox_out.Text += "вверх ";
-            }
-            if (f(point3[0], point3[1] - h[1]) < f0)
-            {
-                point2[1] = point3[1] - h[1];
-                TextBox_out.Text += "вниз ";
-            }
-            
-            TextBox_out.Text += "\nТочка минимума в окрестности ( " + point2[0] + ", " + point2[1] + " )";
-            TextBox_out.Text += "\nЗначение функции в точке: " + f(point2).ToString();
+            var deserializer = new DeserializerBuilder().WithNamingConvention(UnderscoredNamingConvention.Instance).Build();
+            var parameter = deserializer.Deserialize<parameters>(yalm);
+            Set_ui_from_params(parameter);
         }
-
-
-        public void Pattern_search(ref double[] point1, ref double[] point2, ref double[] point3, ref double[] point3_old, ref double[] h, double a, double b, int iter)
+        private void Btn_save_Click(object sender, RoutedEventArgs e)
         {
-            double[] point3_new = new double[2];
-            //Поиск по образцу
-            point3_new[0] = (point2[0] - point1[0]) * b + point1[0];
-            point3_new[1] = (point2[1] - point1[1]) * b + point1[1];
+            parameters parameter = new parameters();
+            Set_params_from_ui(parameter);
 
-            
-            TextBox_out.Text += "\nФункция улучшилась, выполним поиск по образцу";
-            TextBox_out.Text += "\nПредыдущая точка ( " + point1[0] + ", " + point1[1] + " )";
-            TextBox_out.Text += "\nНовая точка ( " + point3_new[0] + ", " + point3_new[1] + " )";
-
-            //Стрелка - указатель направления минимума
-            Plot.Plot.AddArrow(point2[0], point2[1], point3[0], point3[1], lineWidth: 2, color: System.Drawing.Color.FromName("SandyBrown"));
-            Plot.Refresh();
-            DoEvents();
-            Thread.Sleep(2000 - (int)anim_speed.Value);
-
-            //Стелка из старой точки в новую
-            Plot.Plot.AddArrow(point3_new[0], point3_new[1], point1[0], point1[1], lineWidth: 2, color: System.Drawing.Color.FromArgb(255, 0, 200, 200));
-            //Указываем номер итерации
-            Add_label(point3_new, iter);
-
-            point3_old[0] = point3[0];
-            point3_old[1] = point3[1];
-            point3[0] = point3_new[0];
-            point3[1] = point3_new[1];
-            point1[0] = point2[0];
-            point1[1] = point2[1];
-            point2[0] = point3[0];
-            point2[1] = point3[1];
+            var serializer = new SerializerBuilder().WithNamingConvention(CamelCaseNamingConvention.Instance).Build();
+            var yaml = serializer.Serialize(parameter);
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
+            saveFileDialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            saveFileDialog.Filter = "Text file (*.txt)|*.txt";
+            if (saveFileDialog.ShowDialog() == true)
+                System.IO.File.WriteAllText(saveFileDialog.FileName, yaml);
         }
-        public void Step_back(ref double[] point1, ref double[] point2, ref double[] point3, double[] point3_old)
+        private void LostFocusFunction(object sender, RoutedEventArgs e)
         {
-            TextBox_out.Text += "\nНеверное направление - функция выросла, возвращаемся";
-            //стрелка из текущей точки в предыдущую
-            Plot.Plot.AddArrow(point3_old[0], point3_old[1], point3[0], point3[1], lineWidth: 1, color: System.Drawing.Color.FromArgb(255, 255, 0, 0));
+            Plot.Plot.Clear(typeof(Heatmap));
+            Plot.Plot.Clear(typeof(Colorbar));
+            try
+            {
+                Add_heat_map();
+            }
+            catch (Exception)
+            {
 
-            point3[0] = point3_old[0];
-            point3[1] = point3_old[1];
-            point1[0] = point3_old[0];
-            point1[1] = point3_old[1];
-            point2[0] = point3_old[0];
-            point2[1] = point3_old[1];
+            }
         }
-        public void Constriction(ref double[] h, double a)
+        private void About(object sender, RoutedEventArgs e)
         {
-            TextBox_out.Text += "не найдено, уменьшаем шаг";
-            h[0] /= a;
-            h[1] /= a;
+            MessageBox.Show("Метод Хука — Дживса (англ. Hooke — Jeeves), также известный как метод конфигураций — как и алгоритм Нелдера — Мида, служит для поиска безусловного локального " +
+                "экстремума функции и относится к прямым методам, то есть опирается непосредственно на значения функции. Алгоритм делится на две фазы: исследующий поиск и поиск по образцу.\r\n\r\n" +
+                "На начальном этапе задаётся стартовая точка (обозначим её 1) и шаги hi по координатам. Затем замораживаем значения всех координат кроме 1-й, вычисляем значения функции в точках x0+h0 и " +
+                "x0-h0 (где x0 — первая координата точки, а h0 — соответственно значение шага по этой координате) и переходим в точку с наименьшим значением функции. В этой точке замораживаем значения всех " +
+                "координат кроме 2-й, вычисляем значения функции в точках x1+h1 и x1-h1, переходим в точку с наименьшим значением функции и т. д. для всех координат. В случае, если для какой-нибудь " +
+                "координаты значение в исходной точке меньше, чем значения для обоих направлений шага, то шаг по этой координате уменьшается. Когда шаги по всем координатам hi станут меньше соответствующих " +
+                "значений ei, алгоритм завершается, и точка 1 признаётся точкой минимума. \r\n\r\n a - то, во сколько раз уменьшается шаг при неудачном поиске.\r\n b - коэффициент усиления в поиске по образцу." +
+                "\r\n h - начальный шаг в исследующем поиске.\r\n e - значение шага поиска, на котором он остановится.");
         }
     }
 }
