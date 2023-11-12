@@ -21,7 +21,7 @@ namespace Hooke_Jeeves
             double[] point1 = Zero_point(), point2 = Zero_point();
             int iter = 0, maxiter = Max_iter();
 
-            while (h[1] > epsilon)
+            while (h[0] > epsilon || h[1] > epsilon)
             {
                 iter++;
                 Add_label(point2, iter);   //Указываем номер итерации
@@ -52,35 +52,26 @@ namespace Hooke_Jeeves
 
         public void Exploratory_search(ref double[] point2, double[] h, int iter, double a)
         {
-            double f0 = f(point2);
-
+            bool Make_Constriction_X = false, Make_Constriction_Y = false;
             TextBox_out.Text += "\n\n\nИтерация " + iter;
             TextBox_out.Text += "\nТекущая точка    ( " + point2[0] + ", " + point2[1] + " )";
             TextBox_out.Text += "\nДистанция поиска ( " + h[0] + ", " + h[1] + " )";
-            TextBox_out.Text += "\nЗначение функции в точке: " + f0;
+            TextBox_out.Text += "\nЗначение функции в точке: " + f(point2);
             //TextBox_out.Text += "\nЛев: " + f_left + "  Прав: " + f_right + "  Верх: " + f_top + "  Низ: " + f_bottom + " - Значение ";
             //TextBox_out.Text += "\nЛев: " + (f_left - f0).ToString() + "  Прав: " + (f_right - f0).ToString() + "  Верх: " + (f_top - f0).ToString() + "  Низ: " + (f_bottom - f0).ToString() + " - Изменение";
 
             TextBox_out.Text += "\nВыбранное направление: ";
 
-            if (f(point2[0] + h[0], point2[1]) < f0)
+            if (f(point2[0] + h[0], point2[1]) <  f(point2))
             {
                 Plot.Plot.AddArrow(point2[0] + h[0], point2[1], point2[0], point2[1], lineWidth: 2, color: System.Drawing.Color.FromName("GreenYellow"));
-                Plot.Refresh();
-                DoEvents();
-                Thread.Sleep((2000 - (int)anim_speed.Value)/2);
-
                 point2[0] = point2[0] + h[0];
                 TextBox_out.Text += "вправо ";
 
             }
-            else if (f(point2[0] - h[0], point2[1]) < f0)
+            else if (f(point2[0] - h[0], point2[1]) < f(point2))
             {
                 Plot.Plot.AddArrow(point2[0] - h[0], point2[1], point2[0], point2[1], lineWidth: 2, color: System.Drawing.Color.FromName("GreenYellow"));
-                Plot.Refresh();
-                DoEvents();
-                Thread.Sleep((2000 - (int)anim_speed.Value) / 2);
-
                 point2[0] = point2[0] - h[0];
                 TextBox_out.Text += "влево ";
             }
@@ -93,33 +84,20 @@ namespace Hooke_Jeeves
                 crossX.Add(point2[0] + h[0]);
                 crossY.Add(point2[1]);
                 Plot.Plot.AddScatter(crossX.ToArray(), crossY.ToArray(), lineStyle: LineStyle.Dot, lineWidth: 2, color: System.Drawing.Color.FromName("OrangeRed"));
-                Plot.Refresh();
-                DoEvents();
-
-                Constriction_X(ref h, a);
-                Thread.Sleep((2000 - (int)anim_speed.Value) / 2);
+                Make_Constriction_X = true;
             }
 
 
 
-            if (f(point2[0], point2[1] + h[1]) < f0)
+            if (f(point2[0], point2[1] + h[1]) < f(point2))
             {
                 Plot.Plot.AddArrow(point2[0], point2[1] + h[1], point2[0], point2[1], lineWidth: 2, color: System.Drawing.Color.FromName("GreenYellow"));
-                Plot.Refresh();
-                DoEvents();
-                Thread.Sleep((2000 - (int)anim_speed.Value) / 2);
-
                 point2[1] = point2[1] + h[1];
                 TextBox_out.Text += "вверх ";
-
             }
-            else if (f(point2[0], point2[1] - h[1]) < f0)
+            else if (f(point2[0], point2[1] - h[1]) < f(point2))
             {
                 Plot.Plot.AddArrow(point2[0], point2[1] - h[1], point2[0], point2[1], lineWidth: 2, color: System.Drawing.Color.FromName("GreenYellow"));
-                Plot.Refresh();
-                DoEvents();
-                Thread.Sleep((2000 - (int)anim_speed.Value) / 2);
-
                 point2[1] = point2[1] - h[1];
                 TextBox_out.Text += "вниз ";
             }
@@ -132,12 +110,19 @@ namespace Hooke_Jeeves
                 crossX.Add(point2[0]);
                 crossY.Add(point2[1] + h[1]);
                 Plot.Plot.AddScatter(crossX.ToArray(), crossY.ToArray(), lineStyle: LineStyle.Dot, lineWidth: 2, color: System.Drawing.Color.FromName("OrangeRed"));
-                Plot.Refresh();
-                DoEvents();
-
-                Constriction_Y(ref h, a);
-                Thread.Sleep((2000 - (int)anim_speed.Value) / 2);
+                Make_Constriction_Y = true;
             }
+            Plot.Refresh();
+            DoEvents();
+            Thread.Sleep((2000 - (int)anim_speed.Value) / 2);
+
+            if (Make_Constriction_X)
+                Constriction_X(ref h, a);
+            if (Make_Constriction_Y)
+                Constriction_Y(ref h, a);
+
+            TextBox_out.Text += "\nТочка минимума в окрестности ( " + point2[0] + ", " + point2[1] + " )";
+            TextBox_out.Text += "\nЗначение функции в ней: " + f(point2).ToString();
         }
 
 
@@ -148,8 +133,6 @@ namespace Hooke_Jeeves
             point3[0] = (point2[0] - point1[0]) * b + point1[0];
             point3[1] = (point2[1] - point1[1]) * b + point1[1];
 
-            TextBox_out.Text += "\nТочка минимума в окрестности ( " + point2[0] + ", " + point2[1] + " )";
-            TextBox_out.Text += "\nЗначение функции ней: " + f(point2).ToString();
             TextBox_out.Text += "\nФункция улучшилась, выполним поиск по образцу";
             TextBox_out.Text += "\nПредыдущая точка ( " + point1[0] + ", " + point1[1] + " )";
             TextBox_out.Text += "\nНовая точка ( " + point3[0] + ", " + point3[1] + " )";
@@ -164,7 +147,8 @@ namespace Hooke_Jeeves
         }
         public void Step_back(ref double[] point1, ref double[] point2, int iter)
         {
-            TextBox_out.Text += "\nНеверное направление - функция выросла, возвращаемся";
+            TextBox_out.Text += "\nФункция выросла, возвращаемся";
+
             //стрелка из текущей точки в предыдущую
             Plot.Plot.AddArrow(point1[0], point1[1], point2[0], point2[1], lineWidth: 1, color: System.Drawing.Color.FromArgb(255, 255, 0, 0));
 

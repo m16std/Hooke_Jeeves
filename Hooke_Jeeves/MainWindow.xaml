@@ -31,7 +31,7 @@
                     <MenuItem x:Name="ClearHM" Header="Убрать карту высот" HorizontalAlignment="Left" Width="200" Click="ClearHeatMap"/>
                 </MenuItem>
                 <MenuItem Header="О программе">
-                    <MenuItem x:Name="Aboutbtn" Header="О программе" HorizontalAlignment="Left" Width="140" Click="About"/>
+                    <MenuItem x:Name="Aboutbtn" Header="О программе" HorizontalAlignment="Left" Width="170" Click="About"/>
                 </MenuItem>
             </Menu>
 
