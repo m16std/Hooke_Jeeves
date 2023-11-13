@@ -70,7 +70,7 @@ namespace Hooke_Jeeves
             }
             catch (Exception)
             {
-                return 0.1;
+                return 0.001;
             }
         }
         public int Max_iter()
@@ -182,9 +182,9 @@ namespace Hooke_Jeeves
         }
         public void Set_result(double[] point, double epsilon, int iter) //Вывод результатов поиска в интерфейс
         {
-            min_textbox.Text = Math.Round(f(point), (int)Math.Log10(1 / epsilon) + 1).ToString();
-            xmin_textbox.Text = Math.Round(point[0], (int)Math.Log10(1 / epsilon) + 1).ToString();
-            ymin_textbox.Text = Math.Round(point[0], (int)Math.Log10(1 / epsilon) + 1).ToString();
+            min_textbox.Text = Math.Round(f(point), (int)Math.Log10(1.0 / epsilon) + 1).ToString();
+            xmin_textbox.Text = Math.Round(point[0], (int)Math.Log10(1.0 / epsilon) + 1).ToString();
+            ymin_textbox.Text = Math.Round(point[1], (int)Math.Log10(1.0 / epsilon) + 1).ToString();
             iter_textbox.Text = iter.ToString();
         }
         public void Clear_result()
