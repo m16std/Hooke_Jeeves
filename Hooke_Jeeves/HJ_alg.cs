@@ -126,8 +126,8 @@ namespace Hooke_Jeeves
         {
             //Поиск по образцу
             double[] point3 = new double[2];
-            point3[0] = (point2[0] - point1[0]) * b + point2[0];
-            point3[1] = (point2[1] - point1[1]) * b + point2[1];
+            point3[0] = (point2[0] - point1[0]) * b + point1[0];
+            point3[1] = (point2[1] - point1[1]) * b + point1[1];
 
             TextBox_out.Text += "\nФункция улучшилась, выполним поиск по образцу";
             TextBox_out.Text += "\nПредыдущая точка ( " + point1[0] + ", " + point1[1] + " )";
